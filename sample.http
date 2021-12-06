@@ -1,0 +1,13 @@
+### Login user
+
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+    "username": "phlgr",
+    "password": "1234"
+}
+
+### Get my user details
+
+GET http://localhost:3001/api/users/me
