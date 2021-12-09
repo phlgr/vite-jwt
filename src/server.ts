@@ -3,9 +3,16 @@ dotenv.config();
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+const { JWT_SECRET } = process.env;
+
+if (!JWT_SECRET) {
+  throw new Error('No JWT_SECRET provided');
+}
 
 app.use(express.json());
 
@@ -27,7 +34,8 @@ const users = [
 ];
 
 app.get('/api/users/me', (request, response) => {
-  const { username } = request.cookies;
+  const { sessiontoken } = request.cookies;
+  const username = jwt.verify(sessiontoken, JWT_SECRET);
   try {
     const user = users.find((user) => user.username === username);
     if (!user) {
@@ -50,7 +58,8 @@ app.post('/api/login', (req, res) => {
       res.status(401).send('User not found');
       return;
     }
-    res.cookie('username', user.username).send();
+    const token = jwt.sign(username, JWT_SECRET);
+    res.cookie('sessiontoken', token).send();
   } catch (e) {
     console.error(e);
     res.status(500).send('Something went wrong');
